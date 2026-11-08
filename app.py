@@ -273,7 +273,7 @@ def login():
                 return jsonify({
                     "error": "Account temporarily locked. Try again later.",
                     "locked_until": attempt["locked_until"]
-                }), 423
+                }), 429
 
             # Reset attempts after lockout expires
             conn.execute(
@@ -339,7 +339,7 @@ def login():
                 return jsonify({
                     "error": "Account locked after 5 failed attempts.",
                     "locked_until": lock_expiry.isoformat()
-                }), 423
+                }), 429
 
             conn.commit()
 
@@ -497,6 +497,84 @@ def get_records():
 
         conn.close()
 
+
+# ==========================================
+# GET SINGLE PROTECTED RECORD API
+# ==========================================
+
+@app.route("/records/<int:record_id>", methods=["GET"])
+def get_single_record(record_id):
+
+    conn = get_db_connection()
+
+    try:
+        user = get_authenticated_user(conn)
+
+        if user is None:
+            return jsonify({
+                "error": "Unauthorized. Please login."
+            }), 401
+
+        # Admins can read any record.
+        # Normal users can read only their own records.
+        if user["role"] == "admin":
+            record = conn.execute(
+                """
+                SELECT id, title, body, owner_id, created_at
+                FROM records
+                WHERE id = ?
+                """,
+                (record_id,)
+            ).fetchone()
+
+        else:
+            record = conn.execute(
+                """
+                SELECT id, title, body, owner_id, created_at
+                FROM records
+                WHERE id = ? AND owner_id = ?
+                """,
+                (record_id, user["id"])
+            ).fetchone()
+
+        if record is None:
+            return jsonify({
+                "error": "Record not found"
+            }), 404
+
+        title = record["title"]
+        body = record["body"]
+
+        try:
+            if title.startswith("fernet:v1:"):
+                title = decrypt_text(title[len("fernet:v1:"):])
+
+            if body.startswith("fernet:v1:"):
+                body = decrypt_text(body[len("fernet:v1:"):])
+
+        except (ValueError, TypeError):
+            app.logger.exception(
+                "Record decryption failed for record %s",
+                record_id
+            )
+
+            return jsonify({
+                "error": "Unable to decrypt record"
+            }), 500
+
+        return jsonify({
+            "message": "Record retrieved successfully",
+            "record": {
+                "id": record["id"],
+                "title": title,
+                "body": body,
+                "owner_id": record["owner_id"],
+                "created_at": record["created_at"]
+            }
+        }), 200
+
+    finally:
+        conn.close()
 
 # ==========================================
 # CREATE PROTECTED RECORD API
