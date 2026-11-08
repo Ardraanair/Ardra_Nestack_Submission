@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nestack Secure Records | Login</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <div class="logo">
+            <h1>NESTACK</h1>
+            <p>SECURE RECORDS</p>
+        </div>
+
+        <h2>Welcome Back</h2>
+        <p class="subtitle">Login to access your secure records</p>
+
+        <form id="loginForm">
+
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    placeholder="Enter your username"
+                    required
+                >
+            </div>
+
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter your password"
+                    required
+                >
+            </div>
+
+            <button type="submit">Login Securely</button>
+
+            <p id="message"></p>
+
+        </form>
+
+        <p class="register-link">
+            Don't have an account?
+            <a href="/register-page">Register here</a>
+        </p>
+
+        <p class="security-note">
+            Protected by Nestack Security
+        </p>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

@@ -1,0 +1,327 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nestack | My Records</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #07172a, #102943);
+            color: white;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #162f49;
+            padding: 22px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .brand {
+            color: #25c5f4;
+            font-size: 27px;
+            font-weight: bold;
+            letter-spacing: 4px;
+        }
+
+        button {
+            background: #159fce;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .delete-button { background: #c94354; }
+
+        main {
+            max-width: 950px;
+            margin: 45px auto;
+            padding: 20px;
+        }
+
+        .panel {
+            background: #162f49;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 28px;
+        }
+
+        h1, h2 { color: #25c5f4; }
+
+        label {
+            display: block;
+            margin: 18px 0 8px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #385773;
+            border-radius: 8px;
+            background: #0b2034;
+            color: white;
+            font-size: 16px;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .record {
+            background: #0b2034;
+            padding: 20px;
+            border: 1px solid #385773;
+            border-radius: 10px;
+            margin-top: 15px;
+            overflow-wrap: anywhere;
+        }
+
+        .record h3 { color: #25c5f4; }
+
+        #message {
+            margin-top: 15px;
+            line-height: 1.5;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #81a9cc;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="brand">NESTACK</div>
+    <button onclick="window.location.href='/dashboard'">
+        Back to Dashboard
+    </button>
+</header>
+
+<main>
+
+    <h1>My Secure Records</h1>
+    <p>Create and manage your private information.</p>
+
+    <section class="panel">
+
+        <h2>Add New Record</h2>
+
+        <form id="recordForm">
+
+            <label for="title">Record Title</label>
+            <input
+                type="text"
+                id="title"
+                maxlength="150"
+                placeholder="Enter record title"
+                required
+            >
+
+            <label for="body">Record Details</label>
+            <textarea
+                id="body"
+                maxlength="10000"
+                placeholder="Enter your private information"
+                required
+            ></textarea>
+
+            <br><br>
+
+            <button type="submit">Save Record</button>
+
+        </form>
+
+        <p id="message" role="status"></p>
+
+    </section>
+
+    <section class="panel">
+
+        <h2>My Saved Records</h2>
+
+        <div id="recordsList">
+            Loading records...
+        </div>
+
+    </section>
+
+</main>
+
+<footer>
+    Protected by Nestack Security
+</footer>
+
+<script>
+    const token = sessionStorage.getItem("session_token");
+
+    if (!token) {
+        window.location.replace("/login-page");
+    }
+
+    const message = document.getElementById("message");
+    const recordsList = document.getElementById("recordsList");
+
+    async function loadRecords() {
+
+        try {
+            const response = await fetch("/records", {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.status === 401) {
+                sessionStorage.clear();
+                window.location.replace("/login-page");
+                return;
+            }
+
+            if (!response.ok) {
+                recordsList.textContent = "Unable to load records.";
+                return;
+            }
+
+            recordsList.replaceChildren();
+
+            if (data.records.length === 0) {
+                recordsList.textContent = "No records saved yet.";
+                return;
+            }
+
+            data.records.forEach(function(record) {
+
+                const card = document.createElement("div");
+                card.className = "record";
+
+                const title = document.createElement("h3");
+                title.textContent = record.title;
+
+                const body = document.createElement("p");
+                body.textContent = record.body;
+
+                const date = document.createElement("small");
+                date.textContent = "Created: " + record.created_at;
+
+                const deleteButton = document.createElement("button");
+                deleteButton.className = "delete-button";
+                deleteButton.textContent = "Delete";
+
+                deleteButton.addEventListener("click", function() {
+                    deleteRecord(record.id);
+                });
+
+                card.append(title, body, date, document.createElement("br"), deleteButton);
+                recordsList.appendChild(card);
+            });
+
+        } catch (error) {
+            recordsList.textContent = "Unable to connect to the server.";
+        }
+    }
+
+    document.getElementById("recordForm").addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        const title = document.getElementById("title").value.trim();
+        const body = document.getElementById("body").value;
+
+        try {
+            const response = await fetch("/records", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                body: JSON.stringify({
+                    title: title,
+                    body: body
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.status === 401) {
+                sessionStorage.clear();
+                window.location.replace("/login-page");
+                return;
+            }
+
+            if (response.ok) {
+                message.style.color = "#65e6a5";
+                message.textContent = "Record saved successfully!";
+                this.reset();
+                await loadRecords();
+            } else {
+                message.style.color = "#ff7777";
+                message.textContent = data.error || "Unable to save record.";
+            }
+
+        } catch (error) {
+            message.style.color = "#ff7777";
+            message.textContent = "Server connection failed.";
+        }
+    });
+
+    async function deleteRecord(recordId) {
+
+        if (!confirm("Are you sure you want to delete this record?")) {
+            return;
+        }
+
+        try {
+            const response = await fetch("/records/" + recordId, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.status === 401) {
+                sessionStorage.clear();
+                window.location.replace("/login-page");
+                return;
+            }
+
+            if (response.ok) {
+                message.style.color = "#65e6a5";
+                message.textContent = "Record deleted successfully!";
+                await loadRecords();
+            } else {
+                message.style.color = "#ff7777";
+                message.textContent = data.error || "Unable to delete record.";
+            }
+
+        } catch (error) {
+            message.style.color = "#ff7777";
+            message.textContent = "Server connection failed.";
+        }
+    }
+
+    loadRecords();
+</script>
+
+</body>
+</html>

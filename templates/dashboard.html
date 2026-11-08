@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nestack | Dashboard</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #07172a, #102943);
+            color: white;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #162f49;
+            padding: 22px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .brand {
+            color: #25c5f4;
+            font-size: 27px;
+            font-weight: bold;
+            letter-spacing: 4px;
+        }
+
+        header button, .main-button {
+            background: #159fce;
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        main {
+            max-width: 1050px;
+            margin: 60px auto;
+            padding: 20px;
+        }
+
+        .welcome {
+            background: #162f49;
+            padding: 35px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+
+        .welcome h1 { margin-top: 0; }
+
+        .welcome span { color: #25c5f4; }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 22px;
+        }
+
+        .card {
+            background: #162f49;
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid #294963;
+        }
+
+        .card h2 { color: #25c5f4; }
+
+        .card p {
+            color: #c5d9ed;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            color: #81a9cc;
+            padding: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="brand">NESTACK</div>
+    <button id="logoutButton">Logout</button>
+</header>
+
+<main>
+
+    <section class="welcome">
+        <h1>Welcome, <span id="username">User</span>!</h1>
+        <p>Welcome to your Nestack Secure Records dashboard.</p>
+        <p>Manage your personal records in a protected environment.</p>
+    </section>
+
+    <section class="cards">
+
+        <div class="card">
+            <h2>My Records</h2>
+            <p>Create, view and manage your private records.</p>
+            <button class="main-button"
+                    onclick="window.location.href='/records-page'">
+                Open Records
+            </button>
+        </div>
+
+        <div class="card">
+            <h2>Account Security</h2>
+            <p>Your account uses password hashing and session-based authentication.</p>
+            <p>Session duration: 30 minutes.</p>
+        </div>
+
+        <div class="card">
+            <h2>Account Information</h2>
+            <p>Username: <strong id="accountName">User</strong></p>
+            <p>Access: Authenticated user</p>
+        </div>
+
+    </section>
+
+</main>
+
+<footer>
+    Protected by Nestack Security
+</footer>
+
+<script>
+    const token = sessionStorage.getItem("session_token");
+    const username = sessionStorage.getItem("username");
+
+    if (!token) {
+        window.location.replace("/login-page");
+    }
+
+    document.getElementById("username").textContent = username || "User";
+    document.getElementById("accountName").textContent = username || "User";
+
+    document.getElementById("logoutButton").addEventListener("click", async function() {
+
+        try {
+            const response = await fetch("/logout", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            });
+
+            if (response.ok) {
+                sessionStorage.clear();
+                window.location.replace("/login-page");
+            } else {
+                alert("Logout failed. Please try again.");
+            }
+
+        } catch (error) {
+            alert("Unable to contact the server.");
+        }
+    });
+</script>
+
+</body>
+</html>

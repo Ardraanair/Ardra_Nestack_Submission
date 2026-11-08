@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nestack | Register</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #07172a, #102943);
+            font-family: Arial, sans-serif;
+            color: white;
+            padding: 20px;
+        }
+
+        .register-card {
+            width: 100%;
+            max-width: 525px;
+            background: #162f49;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .brand h1 {
+            color: #25c5f4;
+            font-size: 38px;
+            letter-spacing: 6px;
+            margin: 0;
+        }
+
+        .brand p {
+            color: #c5d9ed;
+            letter-spacing: 4px;
+            margin-top: 5px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #a9d5f5;
+            margin-bottom: 35px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 17px;
+        }
+
+        input {
+            width: 100%;
+            padding: 17px;
+            margin-bottom: 24px;
+            border: 1px solid #385773;
+            border-radius: 9px;
+            background: #0b2034;
+            color: white;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #25c5f4;
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 9px;
+            background: #159fce;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #25b9e9;
+        }
+
+        #message {
+            text-align: center;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 30px;
+            color: #d4e3f2;
+        }
+
+        .login-link a {
+            color: #25c5f4;
+            text-decoration: none;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 35px;
+            color: #81a9cc;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="register-card">
+
+        <div class="brand">
+            <h1>NESTACK</h1>
+            <p>SECURE RECORDS</p>
+        </div>
+
+        <h2>Create Account</h2>
+
+        <p class="subtitle">
+            Register to manage your secure records
+        </p>
+
+        <form id="registerForm">
+
+            <label for="username">Username</label>
+
+            <input
+                type="text"
+                id="username"
+                placeholder="Choose a username"
+                minlength="3"
+                maxlength="30"
+                required
+            >
+
+            <label for="password">Password</label>
+
+            <input
+                type="password"
+                id="password"
+                placeholder="Create a password"
+                minlength="8"
+                maxlength="72"
+                required
+            >
+
+            <label for="confirmPassword">Confirm Password</label>
+
+            <input
+                type="password"
+                id="confirmPassword"
+                placeholder="Enter your password again"
+                required
+            >
+
+            <button type="submit">
+                Register Securely
+            </button>
+
+        </form>
+
+        <p id="message" role="status"></p>
+
+        <div class="login-link">
+            Already have an account?
+            <a href="/login-page">Login here</a>
+        </div>
+
+        <div class="footer">
+            Protected by Nestack Security
+        </div>
+
+    </div>
+
+    <script>
+        const registerForm = document.getElementById("registerForm");
+        const message = document.getElementById("message");
+
+        registerForm.addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+
+            if (password !== confirmPassword) {
+                message.style.color = "#ff7777";
+                message.textContent = "Passwords do not match.";
+                return;
+            }
+
+            try {
+
+                const response = await fetch("/register", {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+
+                    message.style.color = "#65e6a5";
+                    message.textContent = "Registration successful! Redirecting to login...";
+
+                    registerForm.reset();
+
+                    setTimeout(function() {
+                        window.location.href = "/login-page";
+                    }, 1500);
+
+                } else {
+
+                    message.style.color = "#ff7777";
+                    message.textContent = data.error || "Registration failed.";
+
+                }
+
+            } catch (error) {
+
+                message.style.color = "#ff7777";
+                message.textContent = "Unable to connect to the server.";
+
+            }
+
+        });
+    </script>
+
+</body>
+</html>

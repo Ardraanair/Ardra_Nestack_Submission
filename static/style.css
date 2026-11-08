@@ -1,0 +1,127 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #071426, #102d4d);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.login-container {
+    width: 90%;
+    max-width: 420px;
+    background: #142b43;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.4);
+}
+
+.logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo h1 {
+    color: #35c6f4;
+    letter-spacing: 4px;
+    font-size: 30px;
+}
+
+.logo p {
+    color: #a8c5db;
+    letter-spacing: 3px;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #a8c5db;
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #36536d;
+    border-radius: 7px;
+    background: #0b1d30;
+    color: white;
+    outline: none;
+    font-size: 14px;
+}
+
+.input-group input:focus {
+    border-color: #35c6f4;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    background: #159bd1;
+    color: white;
+    border: none;
+    border-radius: 7px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: #087eae;
+}
+
+#message {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+    color: #ff7777;
+}
+
+.register-link {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 13px;
+    color: #b7cbdc;
+}
+
+.register-link a {
+    color: #35c6f4;
+    text-decoration: none;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}
+
+.security-note {
+    text-align: center;
+    margin-top: 30px;
+    color: #7794ad;
+    font-size: 12px;
+}
